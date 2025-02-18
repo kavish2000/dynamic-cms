@@ -57,25 +57,25 @@
     </div>
     
     <!-- Child Pages with Tree View -->
-    <div v-if="page.children?.length" class="mt-8">
-      <h2 class="text-xl font-bold mb-4 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-        </svg>
-        Child Pages
-      </h2>
-      
-      <!-- Tree View Component -->
-      <div class="bg-white rounded-lg shadow p-4">
-        <PageTree :pages="page.children" />
-      </div>
+  <div v-if="page.children?.length" class="mt-8">
+    <h2 class="text-xl font-bold mb-4 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+      </svg>
+      Child Pages
+    </h2>
+    
+    <!-- Pass the current path to PageTree -->
+    <div class="bg-white rounded-lg shadow p-4">
+      <ChildPageTree :pages="page.children" :current-path="page.full_path" />
     </div>
+  </div>
   </div>
 </template>
 
 <script setup>
 import { Link } from '@inertiajs/vue3'
-import PageTree from '@/Components/PageTree.vue'
+import ChildPageTree from '@/Components/ChildPageTree.vue'
 
 defineProps({
   page: Object,
