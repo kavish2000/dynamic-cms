@@ -37,7 +37,7 @@
             </button>
             
             <button 
-              @click="deletePage(page)" 
+              @click="openDeleteModal(page)" 
               class="p-1 text-gray-500 hover:text-red-500 transition-colors"
               title="Delete page"
             >
@@ -47,7 +47,7 @@
             </button>
           </div>
         </div>
-        
+
         <div 
           v-if="expanded.includes(page.id) && page.children?.length"
           class="pl-6 mt-1 border-l-2 border-gray-200 ml-3"
@@ -59,11 +59,23 @@
         </div>
       </li>
     </ul>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 class="text-lg font-semibold">Confirm Deletion</h2>
+        <p class="mt-2 text-gray-600">Are you sure you want to Delete "<strong>{{ pageToDelete?.title }}</strong>"? Deleting this page will also remove all its child pages.</p>
+        <div class="mt-4 flex justify-end space-x-2">
+          <button @click="showDeleteModal = false" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+          <button @click="deletePage" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 
 const props = defineProps({
@@ -75,7 +87,10 @@ const props = defineProps({
 })
 
 // Expand all pages with children by default
-const expanded = ref(props.pages.flatMap(page => page.children?.length ? [page.id] : []));
+const expanded = ref(props.pages.flatMap(page => page.children?.length ? [page.id] : []))
+
+const showDeleteModal = ref(false)
+const pageToDelete = ref(null)
 
 const toggleExpand = (page) => {
   const index = expanded.value.indexOf(page.id)
@@ -90,16 +105,17 @@ const getPagePath = (page) => {
   return props.parentPath ? `${props.parentPath}/${page.slug}` : page.slug
 }
 
-const deletePage = (page) => {
-  if (confirm(`Are you sure you want to delete "${page.title}"? This action cannot be undone.`)) {
-    // Send the delete request to the server
-    router.post(`/pages/${page.id}`, {
-      _method: 'delete'
-    });
-  }
+const openDeleteModal = (page) => {
+  pageToDelete.value = page
+  showDeleteModal.value = true
 }
 
-
+const deletePage = () => {
+  if (pageToDelete.value) {
+    router.post(`/pages/${pageToDelete.value.id}`, { _method: 'delete' })
+    showDeleteModal.value = false
+  }
+}
 
 const editPage = (page) => {
   router.get(`/pages/${page.id}/edit`)
