@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Carbon\Carbon;
 
 class PageSeeder extends Seeder
 {
@@ -15,17 +15,52 @@ class PageSeeder extends Seeder
     {
         DB::table('pages')->truncate();
 
-        $pages = [
-            ['parent_id' => null, 'slug' => 'page-1', 'title' => 'Page 1', 'content' => 'Page 1 Content','created_at' => date("Y-m-d H:i:s"),'updated_at' => date("Y-m-d H:i:s")],
-            ['parent_id' => 1, 'slug' => 'page-2', 'title' => 'Page 2', 'content' => 'Page 2 Content','created_at' => date("Y-m-d H:i:s"),'updated_at' => date("Y-m-d H:i:s")],
-            ['parent_id' => 2, 'slug' => 'page-1-child', 'title' => 'Page 1 Child', 'content' => 'Another Content','created_at' => date("Y-m-d H:i:s"),'updated_at' => date("Y-m-d H:i:s")],
-            ['parent_id' => 2, 'slug' => 'page-3', 'title' => 'Page 3', 'content' => 'Page 3 Content','created_at' => date("Y-m-d H:i:s"),'updated_at' => date("Y-m-d H:i:s")],
-            ['parent_id' => 4, 'slug' => 'page-4', 'title' => 'Page 4', 'content' => 'Page 4 Content','created_at' => date("Y-m-d H:i:s"),'updated_at' => date("Y-m-d H:i:s")],
-            ['parent_id' => 4, 'slug' => 'page-5', 'title' => 'Page 5', 'content' => 'Nested Page 5','created_at' => date("Y-m-d H:i:s"),'updated_at' => date("Y-m-d H:i:s")],
-            ['parent_id' => null, 'slug' => 'page-5', 'title' => 'Page 5', 'content' => 'Root Page 5','created_at' => date("Y-m-d H:i:s"),'updated_at' => date("Y-m-d H:i:s")]
-        ];
-        
-        DB::table('pages')->insert($pages);
+        $now = Carbon::now();
 
+        $pages = [
+            ['parent_slug' => null, 'slug' => 'home', 'title' => 'Home', 'content' => 'Welcome to the homepage'],
+            ['parent_slug' => 'home', 'slug' => 'about-us', 'title' => 'About Us', 'content' => 'Information about our company'],
+            ['parent_slug' => 'about-us', 'slug' => 'team', 'title' => 'Our Team', 'content' => 'Meet our amazing team'],
+            ['parent_slug' => 'team', 'slug' => 'john-doe', 'title' => 'John Doe', 'content' => 'CEO of the company'],
+            ['parent_slug' => 'team', 'slug' => 'jane-smith', 'title' => 'Jane Smith', 'content' => 'CTO of the company'],
+            ['parent_slug' => 'home', 'slug' => 'services', 'title' => 'Our Services', 'content' => 'Details of what we offer'],
+            ['parent_slug' => 'services', 'slug' => 'web-development', 'title' => 'Web Development', 'content' => 'We build amazing websites'],
+            ['parent_slug' => 'services', 'slug' => 'mobile-apps', 'title' => 'Mobile Apps', 'content' => 'We develop Android and iOS apps'],
+            ['parent_slug' => 'services', 'slug' => 'consulting', 'title' => 'Consulting', 'content' => 'Business and tech consulting'],
+            ['parent_slug' => 'web-development', 'slug' => 'frontend', 'title' => 'Frontend Development', 'content' => 'React, Vue, and Angular'],
+            ['parent_slug' => 'web-development', 'slug' => 'backend', 'title' => 'Backend Development', 'content' => 'Laravel, Node.js, Django'],
+            ['parent_slug' => 'home', 'slug' => 'contact', 'title' => 'Contact Us', 'content' => 'Get in touch with us'],
+            ['parent_slug' => 'contact', 'slug' => 'support', 'title' => 'Support', 'content' => 'Customer support and FAQs'],
+            ['parent_slug' => 'contact', 'slug' => 'sales', 'title' => 'Sales Inquiry', 'content' => 'Talk to our sales team'],
+            ['parent_slug' => null, 'slug' => 'blog', 'title' => 'Blog', 'content' => 'Read our latest news'],
+            ['parent_slug' => 'blog', 'slug' => 'tech', 'title' => 'Tech Articles', 'content' => 'Technology-related articles'],
+            ['parent_slug' => 'blog', 'slug' => 'business', 'title' => 'Business Insights', 'content' => 'Business strategies and market trends'],
+            ['parent_slug' => 'tech', 'slug' => 'ai', 'title' => 'AI Trends', 'content' => 'Latest in artificial intelligence'],
+            ['parent_slug' => 'tech', 'slug' => 'cybersecurity', 'title' => 'Cybersecurity', 'content' => 'Best security practices'],
+            ['parent_slug' => 'business', 'slug' => 'startups', 'title' => 'Startups', 'content' => 'Tips for new businesses']
+        ];
+
+        $insertedPages = [];
+
+        foreach ($pages as $page) {
+            $parentId = null;
+            if ($page['parent_slug']) {
+                $parentId = $insertedPages[$page['parent_slug']] ?? null;
+            }
+
+            $pageData = [
+                'parent_id' => $parentId,
+                'slug' => $page['slug'],
+                'title' => $page['title'],
+                'content' => $page['content'],
+                'created_at' => $now,
+                'updated_at' => $now
+            ];
+
+            $pageId = DB::table('pages')->insertGetId($pageData);
+
+            // Store inserted page ID to resolve parent-child relationships dynamically
+            $insertedPages[$page['slug']] = $pageId;
+        }
     }
 }
